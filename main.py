@@ -48,11 +48,18 @@ def perform_draw(persons: List[Person]) -> None:
     """Assigns a random draw to each person."""
     import random
 
-    names = [person.name for person in persons]
-    random.shuffle(names)
+    bad_draw = True
 
-    for i, person in enumerate(persons):
-        person.draw = names[i]
+    while bad_draw:
+        bad_draw = False
+        names = [person.name for person in persons]
+        random.shuffle(names)
+
+        for i, person in enumerate(persons):
+            if person.name == names[i]:
+                bad_draw = True
+                break
+            person.draw = names[i]
 
 
 def send_email(
