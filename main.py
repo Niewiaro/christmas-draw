@@ -9,6 +9,9 @@ class Config:
         self.input_name = "input.xlsx"
         self.input_path = Path.cwd() / self.input_name
 
+        self.email_subject = "Test Draw"
+        self.email_html_body = "Cześć {name}. Wylosowałeś {draw}"
+
     def is_valid(self) -> bool:
         """Checks if the input file exists."""
         return self.input_path.exists()
@@ -24,6 +27,9 @@ class Person:
 
     def __repr__(self) -> str:
         return f"name: {self.name}\nemail: {self.email}\ndraw: {self.draw}"
+
+    def __str__(self) -> str:
+        return self.name
 
 
 def get_data_from_excel(path: Path) -> List[Person]:
@@ -46,29 +52,43 @@ def get_data_from_excel(path: Path) -> List[Person]:
 
 def perform_draw(persons: List[Person]) -> None:
     """Assigns a random draw to each person."""
-    import random
+    import random, copy
 
     bad_draw = True
 
     while bad_draw:
         bad_draw = False
-        names = [person.name for person in persons]
-        random.shuffle(names)
+        draws = copy.deepcopy(persons)
+        random.shuffle(draws)
 
         for i, person in enumerate(persons):
-            if person.name == names[i]:
+            if person.name == draws[i].name:
                 bad_draw = True
                 break
-            person.draw = names[i]
+            person.draw = draws[i]
 
 
 def send_email(
-    *, to: str, subject: str, body: str = None, html_body: str = None
+    *,
+    person: Person = None,
+    to: str = None,
+    subject: str = "",
+    body: str = None,
+    html_body: str = None,
 ) -> None:
     """Sends an email via Outlook."""
     import win32com.client as win32
 
     try:
+        if person and person.email:
+            to = person.email
+        elif to is None:
+            raise ValueError("to is None")
+
+        # Format the email body dynamically by replacing placeholders
+        html_body_formated = html_body.format(name=person.name, draw=person.draw.name)
+
+        # Setting up Outlook email
         outlook = win32.Dispatch("outlook.application")
         mail = outlook.CreateItem(0)
         mail.To = to
@@ -77,10 +97,14 @@ def send_email(
         if body:
             mail.Body = body
 
-        if html_body:
-            mail.HTMLBody = html_body
+        if html_body_formated:
+            mail.HTMLBody = html_body_formated
 
-        mail.Send()
+        print(f"mail.To:\t{mail.To}")
+        print(f"mail.Subject:\t{mail.Subject}")
+        print(f"mail.Body:\t{mail.Body}")
+        print(f"mail.HTMLBody:\t{mail.HTMLBody}")
+        # mail.Send()
     except Exception as e:
         print(f"Error sending email: {e}")
 
@@ -102,7 +126,11 @@ def main() -> None:
     perform_draw(persons)
     for person in persons:
         # Uncomment the line below to send emails
-        # send_email(to=person.email, subject="Test", body=f"Hello {person.name}")
+        send_email(
+            person=person,
+            subject=config.email_subject,
+            html_body=config.email_html_body,
+        )
         print(f"{person}\n")
 
 
