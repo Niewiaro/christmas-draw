@@ -20,24 +20,27 @@ class Config:
     <style>
         body {{
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background: #002244;
             color: #333;
             margin: 0;
             padding: 0;
         }}
         .container {{
             max-width: 600px;
-            margin: 20px auto;
-            background-color: #fff;
-            border-radius: 10px;
+            margin: 100px auto 100px auto;
+            background-color: #fdf6e3;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 5px double #d32f2f;
+            padding: 20px;
         }}
         .header {{
             background-color: #d32f2f;
             color: #fff;
             text-align: center;
             padding: 20px;
+            border-bottom: 3px dashed #fff;
         }}
         .header h1 {{
             margin: 0;
@@ -49,13 +52,16 @@ class Config:
         }}
         .content h2 {{
             color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
         }}
-        .footer {{
+        .st00pka {{
             text-align: center;
             background-color: #d32f2f;
             color: #fff;
             padding: 15px;
             font-size: 14px;
+            border-top: 3px dashed #fff;
         }}
     </style>
 </head>
@@ -80,7 +86,7 @@ class Config:
             <p>Wesołych Świąt i dużo świątecznej magii! 🌟</p>
             <p>Z pozdrowieniami,<br>Twoje Ukochanie Świąteczne Dziecko, {draw}</p>
         </div>
-        <div class="footer">
+        <div class="st00pka">
             <p>Dziękuję, że jesteś częścią tych magicznych Świąt! ❄️</p>
             <p>🎄 Wesołych Świąt! 🎁</p>
         </div>
@@ -90,7 +96,7 @@ class Config:
 """
 
         self.map = [
-            "Nazwa",
+            "Imię i nazwisko",
             "Adres e-mail",
             "Bardzo chcę dostać...",
             "Moje hobby to...",
