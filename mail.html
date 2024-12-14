@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wesołych Świąt!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #a9c9ff, #f9f9f9) no-repeat; /* Przymrożone tło nie powtarza się */
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .snowflakes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .snowflake {
+            position: absolute;
+            background: white;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+        .snowflake.large {
+            width: 20px;
+            height: 20px;
+        }
+        .snowflake.small {
+            width: 5px;
+            height: 5px;
+        }
+        @keyframes fall {
+            0% {
+                transform: translateY(-10%) translateX(0);
+            }
+            100% {
+                transform: translateY(110vh) translateX(20px);
+            }
+        }
+        @keyframes sway {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(15px);
+            }
+        }
+        .snowflake {
+            animation: fall 10s linear infinite, sway 3s ease-in-out infinite;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 100px auto 100px auto; /* Większy margines góra/dół */
+            background-color: #f5f5dc; /* Kolor kartki papieru */
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 5px double #d32f2f; /* Bardziej ozdobna obwódka */
+            position: relative;
+            z-index: 2; /* Kontener nad śnieżynkami */
+            padding: 20px;
+        }
+        .header {
+            background-color: #d32f2f;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px dashed #fff; /* Ozdobne podkreślenie */
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 20px;
+            line-height: 1.8;
+        }
+        .content h2 {
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .mail-footer {
+            text-align: center;
+            background-color: #d32f2f;
+            color: #fff;
+            padding: 15px;
+            font-size: 14px;
+            border-top: 3px dashed #fff; /* Ozdobne zakończenie */
+        }
+    </style>
+</head>
+<body>
+    <!-- Statyczne śnieżynki -->
+    <div class="snowflakes">
+        <!-- Większa ilość śnieżynek -->
+        <div class="snowflake" style="left: 5%; top: 10%;"></div>
+        <div class="snowflake large" style="left: 15%; top: 25%;"></div>
+        <div class="snowflake small" style="left: 30%; top: 15%;"></div>
+        <div class="snowflake" style="left: 50%; top: 5%;"></div>
+        <div class="snowflake large" style="left: 70%; top: 30%;"></div>
+        <div class="snowflake small" style="left: 85%; top: 20%;"></div>
+        <div class="snowflake" style="left: 40%; top: 50%;"></div>
+        <div class="snowflake small" style="left: 60%; top: 60%;"></div>
+        <div class="snowflake large" style="left: 75%; top: 70%;"></div>
+        <div class="snowflake" style="left: 90%; top: 80%;"></div>
+        <!-- Dodatkowe śnieżynki -->
+        <div class="snowflake small" style="left: 10%; top: 5%;"></div>
+        <div class="snowflake" style="left: 20%; top: 10%;"></div>
+        <div class="snowflake large" style="left: 35%; top: 40%;"></div>
+        <div class="snowflake small" style="left: 55%; top: 45%;"></div>
+        <div class="snowflake" style="left: 65%; top: 50%;"></div>
+        <div class="snowflake small" style="left: 85%; top: 65%;"></div>
+        <div class="snowflake large" style="left: 25%; top: 75%;"></div>
+        <div class="snowflake" style="left: 45%; top: 85%;"></div>
+        <div class="snowflake small" style="left: 75%; top: 90%;"></div>
+        <div class="snowflake" style="left: 95%; top: 95%;"></div>
+        <div class="snowflake small" style="left: 5%; top: 60%;"></div>
+        <div class="snowflake large" style="left: 15%; top: 5%;"></div>
+        <div class="snowflake" style="left: 35%; top: 20%;"></div>
+        <div class="snowflake small" style="left: 55%; top: 15%;"></div>
+        <div class="snowflake large" style="left: 65%; top: 5%;"></div>
+        <div class="snowflake" style="left: 75%; top: 25%;"></div>
+        <div class="snowflake small" style="left: 85%; top: 30%;"></div>
+        <div class="snowflake large" style="left: 95%; top: 50%;"></div>
+        <div class="snowflake" style="left: 10%; top: 90%;"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎄 Cześć, Mikołaju! 🎅</h1>
+        </div>
+        <div class="content">
+            <h2>📜 List od Twojego Elfa 🎁</h2>
+            <p>Drogi Mikołaju,</p>
+            <p>W tym roku zostałeś wybrany, aby spełnić moje świąteczne marzenie! 🎅</p>
+            <p>Oto kilka informacji, które mogą Ci pomóc w przygotowaniu prezentu:</p>
+            <ul>
+                <li>🎁 <strong>Co chciałbym/chciałabym dostać:</strong> Magiczna książka</li>
+                <li>🎨 <strong>Hobby:</strong> Rysowanie</li>
+                <li>📚 <strong>Co robię w wolnym czasie:</strong> Czytanie książek</li>
+                <li>🎨 <strong>Ulubiony kolor:</strong> Zielony</li>
+                <li>❌ <strong>Czego nie chciałbym/chciałabym dostać:</strong> Skarpetki</li>
+            </ul>
+            <p>Nie mogę się doczekać niespodzianki, którą dla mnie przygotujesz. Mam nadzieję, że znajdziesz coś, co wywoła uśmiech na mojej twarzy! 🎄✨</p>
+            <p>Wesołych Świąt i dużo świątecznej magii! 🌟</p>
+            <p>Z pozdrowieniami,<br>Twoje Ukochanie Świąteczne Dziecko</p>
+        </div>
+        <div class="mail-footer">
+            <p>Dziękuję, że jesteś częścią tych magicznych Świąt! ❄️</p>
+            <p>🎄 Wesołych Świąt! 🎁</p>
+        </div>
+    </div>
+</body>
+</html>
