@@ -7,8 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #a9c9ff, #f9f9f9) no-repeat; /* Przymrożone tło nie powtarza się */
-            background-size: cover;
+            background: #002244;
             color: #333;
             margin: 0;
             padding: 0;
@@ -24,49 +23,29 @@
         .snowflake {
             position: absolute;
             background: white;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            opacity: 0.8;
-        }
-        .snowflake.large {
             width: 20px;
             height: 20px;
+            border-radius: 50%;
+            border: 1px solid #00CCFF;
+        }
+        .snowflake.large {
+            width: 30px;
+            height: 30px;
         }
         .snowflake.small {
-            width: 5px;
-            height: 5px;
+            width: 15px;
+            height: 15px;
         }
-        @keyframes fall {
-            0% {
-                transform: translateY(-10%) translateX(0);
-            }
-            100% {
-                transform: translateY(110vh) translateX(20px);
-            }
-        }
-        @keyframes sway {
-            0%, 100% {
-                transform: translateX(0);
-            }
-            50% {
-                transform: translateX(15px);
-            }
-        }
-        .snowflake {
-            animation: fall 10s linear infinite, sway 3s ease-in-out infinite;
-        }
-
         .container {
             max-width: 600px;
-            margin: 100px auto 100px auto; /* Większy margines góra/dół */
-            background-color: #f5f5dc; /* Kolor kartki papieru */
+            margin: 100px auto 100px auto;
+            background-color: #fdf6e3;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border: 5px double #d32f2f; /* Bardziej ozdobna obwódka */
+            border: 5px double #d32f2f;
             position: relative;
-            z-index: 2; /* Kontener nad śnieżynkami */
+            z-index: 2;
             padding: 20px;
         }
         .header {
@@ -74,7 +53,7 @@
             color: #fff;
             text-align: center;
             padding: 20px;
-            border-bottom: 3px dashed #fff; /* Ozdobne podkreślenie */
+            border-bottom: 3px dashed #fff;
         }
         .header h1 {
             margin: 0;
@@ -95,14 +74,12 @@
             color: #fff;
             padding: 15px;
             font-size: 14px;
-            border-top: 3px dashed #fff; /* Ozdobne zakończenie */
+            border-top: 3px dashed #fff;
         }
     </style>
 </head>
 <body>
-    <!-- Statyczne śnieżynki -->
     <div class="snowflakes">
-        <!-- Większa ilość śnieżynek -->
         <div class="snowflake" style="left: 5%; top: 10%;"></div>
         <div class="snowflake large" style="left: 15%; top: 25%;"></div>
         <div class="snowflake small" style="left: 30%; top: 15%;"></div>
@@ -113,7 +90,6 @@
         <div class="snowflake small" style="left: 60%; top: 60%;"></div>
         <div class="snowflake large" style="left: 75%; top: 70%;"></div>
         <div class="snowflake" style="left: 90%; top: 80%;"></div>
-        <!-- Dodatkowe śnieżynki -->
         <div class="snowflake small" style="left: 10%; top: 5%;"></div>
         <div class="snowflake" style="left: 20%; top: 10%;"></div>
         <div class="snowflake large" style="left: 35%; top: 40%;"></div>
@@ -133,6 +109,12 @@
         <div class="snowflake small" style="left: 85%; top: 30%;"></div>
         <div class="snowflake large" style="left: 95%; top: 50%;"></div>
         <div class="snowflake" style="left: 10%; top: 90%;"></div>
+        <div class="snowflake large" style="left: 50%; top: 90%;"></div>
+        <div class="snowflake" style="left: 20%; top: 75%;"></div>
+        <div class="snowflake small" style="left: 80%; top: 15%;"></div>
+        <div class="snowflake" style="left: 30%; top: 65%;"></div>
+        <div class="snowflake small" style="left: 70%; top: 45%;"></div>
+        <div class="snowflake large" style="left: 25%; top: 35%;"></div>
     </div>
 
     <div class="container">
