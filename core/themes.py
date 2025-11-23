@@ -1,12 +1,13 @@
 import pandas as pd
 
 
-def extract_gift_themes_from_df(df: pd.DataFrame) -> list:
-    cols = [
-        "Zaproponuj pierwszy motyw prezentowy",
-        "Zaproponuj drugi motyw prezentowy",
-        "Zaproponuj trzeci motyw prezentowy",
-    ]
+def extract_gift_themes_from_df(df: pd.DataFrame, cols: list = None) -> list:
+    if cols is None:
+        cols = [
+            "Zaproponuj pierwszy motyw prezentowy",
+            "Zaproponuj drugi motyw prezentowy",
+            "Zaproponuj trzeci motyw prezentowy",
+        ]
 
     seen = set()
     result = []
