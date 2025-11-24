@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 import json
+from jinja2 import Template
 
 from core.themes import extract_gift_themes_from_df, save_list_to_json
 from core.draw import Person, assign_draws
@@ -88,13 +89,31 @@ def main() -> None:
             {"person": str(person), "draw": str(person.draw)} for person in persons
         ]
         backup_body = json.dumps(backup_data, indent=4, ensure_ascii=False)
-        # send_email_via_outlook(
-        #     to=config.send_backup_emails,
-        #     subject="Backup of Secret Santa Draws",
-        #     body=backup_body,
-        # )
+        send_email_via_outlook(
+            to=config.send_backup_emails,
+            subject="Backup of Secret Santa Draws",
+            body=backup_body,
+        )
         print(f"Backup email sent to {config.send_backup_emails}")
         # print(backup_body)
+
+    try:
+        with open("mail/secret_santa.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError("Email template file not found: mail/secret_santa.html")
+
+    template = Template(html_content)
+
+    for person in persons:
+        rendered_html = template.render(**person.to_jinja2())
+
+        send_email_via_outlook(
+            to=person.email,
+            subject=f"LIST DO ŚW. MIKOŁAJA OD {person.draw.name}",
+            html_body=rendered_html,
+        )
+        print(f"Email sent to {person.email} ({person.name})")
 
 
 if __name__ == "__main__":

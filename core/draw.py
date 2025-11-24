@@ -26,6 +26,19 @@ class Person:
         if not EMAIL_REGEX.match(self.email):
             raise ValueError(f"Invalid email: {self.email!r}")
 
+    def to_jinja2(self) -> dict[str, str | None]:
+        """Convert the Person instance to a dictionary for Jinja2 templating."""
+        return {
+            "name": self.name,
+            "email": self.email,
+            "draw_name": self.draw.name,
+            "draw_gift": self.draw.gift,
+            "draw_hobby": self.draw.hobby,
+            "draw_free_time": self.draw.free_time,
+            "draw_favorite_color": self.draw.favorite_color,
+            "draw_not_want": self.draw.not_want,
+        }
+
     def __str__(self) -> str:
         return self.name
 
