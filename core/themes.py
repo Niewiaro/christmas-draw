@@ -37,3 +37,20 @@ def save_list_to_json(list: list, out_path: str, sort: bool = True) -> None:
         list = sorted(list, key=lambda s: s.lower())
     with out.open("w", encoding="utf-8") as fh:
         json.dump(list, fh, ensure_ascii=False, indent=2)
+
+
+def assign_gift_themes(persons, themes):
+    """
+    Assigns each person exactly one unique gift theme.
+    `persons` — list of Person objects
+    `themes` — list of strings (themes)
+    """
+    import random
+
+    if len(themes) < len(persons):
+        raise ValueError("Not enough themes to assign to each person.")
+
+    selected_themes = random.sample(themes, len(persons))
+
+    for person, theme in zip(persons, selected_themes):
+        person.gift_theme = theme

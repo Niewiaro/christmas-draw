@@ -15,9 +15,10 @@ class Person:
     free_time: str | None = None
     favorite_color: str | None = None
     not_want: str | None = None
+    gift_theme: str | None = None
 
     # Not shown in repr, but stored normally
-    draw: Person | None = field(default=None, repr=False)
+    draw: None = field(default=None, repr=False)
 
     def __post_init__(self):
         """Runs automatically after __init__."""
@@ -37,6 +38,7 @@ class Person:
             "draw_free_time": self.draw.free_time,
             "draw_favorite_color": self.draw.favorite_color,
             "draw_not_want": self.draw.not_want,
+            "gift_theme": self.gift_theme,
         }
 
     def __str__(self) -> str:

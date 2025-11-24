@@ -3,7 +3,11 @@ import pandas as pd
 import json
 from jinja2 import Template
 
-from core.themes import extract_gift_themes_from_df, save_list_to_json
+from core.themes import (
+    extract_gift_themes_from_df,
+    save_list_to_json,
+    assign_gift_themes,
+)
 from core.draw import Person, assign_draws
 from core.email import send_email_via_outlook
 
@@ -23,6 +27,7 @@ class Config:
         )
         self.column_map: dict = json.loads(os.getenv("COLUMN_MAP"))
 
+        self.sender_email: str = os.getenv("SENDER_EMAIL").strip()
         self.send_backup_emails: str | None = (
             os.getenv("SEND_BACKUP_EMAILS", None)
         ).strip()
@@ -84,18 +89,28 @@ def main() -> None:
 
     assign_draws(persons)
 
+    with open("gift_themes.json", "r", encoding="utf-8") as f:
+        themes = json.load(f)
+        assign_gift_themes(persons, themes)
+
     if config.send_backup_emails:
         backup_data = [
-            {"person": str(person), "draw": str(person.draw)} for person in persons
+            {
+                "person": str(person),
+                "draw": str(person.draw),
+                "gift_theme": person.gift_theme,
+            }
+            for person in persons
         ]
         backup_body = json.dumps(backup_data, indent=4, ensure_ascii=False)
-        send_email_via_outlook(
-            to=config.send_backup_emails,
-            subject="Backup of Secret Santa Draws",
-            body=backup_body,
-        )
+        # send_email_via_outlook(
+        #     to=config.send_backup_emails,
+        #     subject="Backup of Secret Santa Draws",
+        #     sender=config.sender_email,
+        #     body=backup_body,
+        # )
         print(f"Backup email sent to {config.send_backup_emails}")
-        # print(backup_body)
+        print(backup_body)
 
     try:
         with open("mail/secret_santa.html", "r", encoding="utf-8") as f:
@@ -108,12 +123,12 @@ def main() -> None:
     for person in persons:
         rendered_html = template.render(**person.to_jinja2())
 
-        send_email_via_outlook(
-            to=person.email,
-            subject=f"LIST DO ŚW. MIKOŁAJA OD {person.draw.name}",
-            html_body=rendered_html,
-        )
-        print(f"Email sent to {person.email} ({person.name})")
+        # send_email_via_outlook(
+        #     to=person.email,
+        #     subject=f"LIST DO ŚW. MIKOŁAJA OD {person.draw.name}",
+        #     html_body=rendered_html,
+        # )
+        # print(f"Email sent to {person.email} ({person.name})")
 
 
 if __name__ == "__main__":
