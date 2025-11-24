@@ -1,239 +1,69 @@
 from pathlib import Path
-from typing import List
+import pandas as pd
+import json
+from jinja2 import Template
+
+from core.themes import (
+    extract_gift_themes_from_df,
+    save_list_to_json,
+    assign_gift_themes,
+)
+from core.draw import Person, assign_draws
+from core.email import send_email_via_outlook
 
 
 class Config:
-    """Class to store configuration details."""
-
     def __init__(self) -> None:
-        self.input_name = "input.xlsx"
-        self.input_path = Path.cwd() / self.input_name
+        from dotenv import load_dotenv
+        import os
 
-        self.email_subject = "🎄 List do Świętego Mikołaja! 🎅"
-        self.email_html_body = """
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wesołych Świąt!</title>
-    <style>
-        body {{
-            font-family: Arial, sans-serif;
-            background: #002244;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }}
-        .container {{
-            max-width: 600px;
-            margin: 100px auto 100px auto;
-            background-color: #fdf6e3;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border: 5px double #d32f2f;
-            padding: 20px;
-        }}
-        .header {{
-            background-color: #d32f2f;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-            border-bottom: 3px dashed #fff;
-        }}
-        .header h1 {{
-            margin: 0;
-            font-size: 28px;
-        }}
-        .content {{
-            padding: 20px;
-            line-height: 1.8;
-        }}
-        .content h2 {{
-            color: #d32f2f;
-            text-align: center;
-            margin-bottom: 20px;
-        }}
-        .st00pka {{
-            text-align: center;
-            background-color: #d32f2f;
-            color: #fff;
-            padding: 15px;
-            font-size: 14px;
-            border-top: 3px dashed #fff;
-        }}
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎄 Cześć, Mikołaju {name}! 🎅</h1>
-        </div>
-        <div class="content">
-            <h2>📜 List od {draw} 🎁</h2>
-            <p>Drogi Mikołaju {name},</p>
-            <p>W tym roku zostałeś wybrany, aby spełnić moje świąteczne marzenie! 🎅</p>
-            <p>Oto kilka informacji, które mogą Ci pomóc w przygotowaniu prezentu:</p>
-            <ul>
-                <li>🎁 <strong>Co chcę dostać:</strong> {gift}</li>
-                <li>🎨 <strong>Hobby:</strong> {hobby}</li>
-                <li>📚 <strong>Co robię w wolnym czasie:</strong> {free_time}</li>
-                <li>🎨 <strong>Ulubiony kolor:</strong> {favorite_color}</li>
-                <li>❌ <strong>Czego nie chcę dostać:</strong> {not_want}</li>
-            </ul>
-            <p>Nie mogę się doczekać niespodzianki, którą dla mnie przygotujesz. Mam nadzieję, że znajdziesz coś, co wywoła uśmiech na mojej twarzy! 🎄✨</p>
-            <p>Wesołych Świąt i dużo świątecznej magii! 🌟</p>
-            <p>Z pozdrowieniami,<br>Twoje Ukochanie Świąteczne Dziecko, {draw}</p>
-        </div>
-        <div class="st00pka">
-            <p>Dziękuję, że jesteś częścią tych magicznych Świąt! ❄️</p>
-            <p>🎄 Wesołych Świąt! 🎁</p>
-        </div>
-    </div>
-</body>
-</html>
-"""
+        load_dotenv()
 
-        self.map = [
-            "Imię i nazwisko",
-            "Adres e-mail",
-            "Bardzo chcę dostać...",
-            "Moje hobby to...",
-            "W wolnym czasie uwielbiam...",
-            "Mój ulubiony kolor to...",
-            "Bardzo nie chcę dostać...",
-        ]
+        self.input_file_name: str = os.getenv("FILE_NAME")
+        self.input_file_path: Path = Path(__file__).parent / self.input_file_name
+
+        self.load_gift_themes: bool = (
+            os.getenv("LOAD_GIFT_THEMES", "true").lower() == "true"
+        )
+        self.column_map: dict = json.loads(os.getenv("COLUMN_MAP"))
+
+        self.sender_email: str = os.getenv("SENDER_EMAIL").strip()
+        self.send_backup_emails: str | None = (
+            os.getenv("SEND_BACKUP_EMAILS", None)
+        ).strip()
 
     def is_valid(self) -> bool:
         """Checks if the input file exists."""
-        return self.input_path.exists()
+        return self.input_file_path.exists()
 
 
-class Person:
-    """Represents a person with name, email and a draw assignment."""
+def load_df(path: str) -> pd.DataFrame:
+    """Loads a file into a DataFrame."""
+    if not Path(path).exists():
+        raise FileNotFoundError(f"File not found: {path}")
 
-    def __init__(
-        self,
-        *,
-        name: str,
-        email: str,
-        gift: str = None,
-        hobby: str = None,
-        free_time: str = None,
-        favorite_color: str = None,
-        not_want: str = None,
-    ) -> None:
-        self.name = name
-        self.email = email
-        self.draw = None
-        self.gift = gift
-        self.hobby = hobby
-        self.free_time = free_time
-        self.favorite_color = favorite_color
-        self.not_want = not_want
+    if str(path).lower().endswith(".csv"):
+        return pd.read_csv(path)
 
-    def __repr__(self) -> str:
-        return f"name: {self.name}\nemail: {self.email}\ndraw: {self.draw}"
+    if str(path).lower().endswith(".xlsx"):
+        return pd.read_excel(path)
 
-    def __str__(self) -> str:
-        return self.name
+    raise ValueError(f"Unsupported file format: {path}")
 
 
-def get_data_from_excel(path: Path, map: List[str]) -> List[Person]:
-    """Reads person data from an Excel file."""
-    import pandas as pd
+def get_data_from_df(df: pd.DataFrame, column_map: dict[str, str]) -> list[Person]:
+    persons = []
 
-    try:
-        file = pd.ExcelFile(path)
-        with file as xlsx:
-            df = pd.read_excel(xlsx, "Sheet1")
-            result = [
-                Person(
-                    name=name,
-                    email=email,
-                    gift=gift,
-                    hobby=hobby,
-                    free_time=free_time,
-                    favorite_color=favorite_color,
-                    not_want=not_want,
-                )
-                for name, email, gift, hobby, free_time, favorite_color, not_want in df[
-                    map
-                ].to_numpy()
-            ]
-        return result
-    except Exception as e:
-        print(f"Error reading file: {e}")
-        return []
+    for _, row in df.iterrows():
+        kwargs = {}
 
+        for col_name, attr_name in column_map.items():
+            if col_name in df.columns:
+                kwargs[attr_name] = row[col_name]
 
-def perform_draw(persons: List[Person]) -> None:
-    """Assigns a random draw to each person."""
-    import random, copy
+        persons.append(Person(**kwargs))
 
-    bad_draw = True
-
-    while bad_draw:
-        bad_draw = False
-        draws = copy.deepcopy(persons)
-        random.shuffle(draws)
-
-        for i, person in enumerate(persons):
-            if person.name == draws[i].name:
-                bad_draw = True
-                break
-            person.draw = draws[i]
-
-
-def send_email(
-    *,
-    person: Person = None,
-    to: str = None,
-    subject: str = "",
-    body: str = None,
-    html_body: str = None,
-    attribute_not_found: str = "Brak informacji",
-) -> None:
-    """Sends an email via Outlook."""
-    import win32com.client as win32
-
-    try:
-        if person and person.email:
-            to = person.email
-        elif to is None:
-            raise ValueError("to is None")
-
-        # Format the email body dynamically by replacing placeholders
-        html_body_formatted = html_body.format(
-            name=person.name,
-            draw=person.draw.name,
-            gift=person.draw.gift or attribute_not_found,
-            hobby=person.draw.hobby or attribute_not_found,
-            free_time=person.draw.free_time or attribute_not_found,
-            favorite_color=person.draw.favorite_color or attribute_not_found,
-            not_want=person.draw.not_want or attribute_not_found,
-        )
-
-        # Setting up Outlook email
-        outlook = win32.Dispatch("outlook.application")
-        mail = outlook.CreateItem(0)
-        mail.To = to
-        mail.Subject = subject
-
-        if body:
-            mail.Body = body
-
-        if html_body_formatted:
-            mail.HTMLBody = html_body_formatted
-
-        # print(f"mail.To:\t{mail.To}")
-        # print(f"mail.Subject:\t{mail.Subject}")
-        # print(f"mail.Body:\t{mail.Body}")
-        # print(f"mail.HTMLBody:\t{mail.HTMLBody}")
-        mail.Send()
-    except Exception as e:
-        print(f"Error sending email: {e}")
+    return persons
 
 
 def main() -> None:
@@ -242,24 +72,63 @@ def main() -> None:
 
     config = Config()
     if not config.is_valid():
-        print(f"Error: {config.input_name} does not exist.")
-        return
+        raise FileNotFoundError(f"Input file not found: {config.input_file_path}")
 
-    persons = get_data_from_excel(config.input_path, config.map)
+    df = load_df(config.input_file_path)
+
+    if config.load_gift_themes:
+        themes = extract_gift_themes_from_df(df)
+        save_list_to_json(themes, out_path="gift_themes.json")
+
+    persons = get_data_from_df(df, config.column_map)
+
     if not persons:
-        print("No data found.")
-        return
+        raise ValueError("No persons found in the input data.")
 
-    perform_draw(persons)
+    print(f"Loaded {len(persons)} persons from {config.input_file_name}")
+
+    assign_draws(persons)
+
+    with open("gift_themes.json", "r", encoding="utf-8") as f:
+        themes = json.load(f)
+        assign_gift_themes(persons, themes)
+
+    if config.send_backup_emails:
+        backup_data = [
+            {
+                "person": str(person),
+                "draw": str(person.draw),
+                "gift_theme": person.gift_theme,
+            }
+            for person in persons
+        ]
+        backup_body = json.dumps(backup_data, indent=4, ensure_ascii=False)
+        # send_email_via_outlook(
+        #     to=config.send_backup_emails,
+        #     subject="Backup of Secret Santa Draws",
+        #     sender=config.sender_email,
+        #     body=backup_body,
+        # )
+        print(f"Backup email sent to {config.send_backup_emails}")
+        print(backup_body)
+
+    try:
+        with open("mail/secret_santa.html", "r", encoding="utf-8") as f:
+            html_content = f.read()
+    except FileNotFoundError:
+        raise FileNotFoundError("Email template file not found: mail/secret_santa.html")
+
+    template = Template(html_content)
+
     for person in persons:
-        print(f"Sending email to {person}...")
-        # print(f"Got {person.draw.name}...")
-        send_email(
-            person=person,
-            subject=config.email_subject,
-            html_body=config.email_html_body,
-        )
-        print("Done\n")
+        rendered_html = template.render(**person.to_jinja2())
+
+        # send_email_via_outlook(
+        #     to=person.email,
+        #     subject=f"LIST DO ŚW. MIKOŁAJA OD {person.draw.name}",
+        #     html_body=rendered_html,
+        # )
+        # print(f"Email sent to {person.email} ({person.name})")
 
 
 if __name__ == "__main__":
